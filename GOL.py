@@ -27,7 +27,6 @@ def next_generation(board):
     return new_board
 
 def main():
-    global board_size, board
     board_size = 10
     board = [[' ' for _ in range(board_size)] for _ in range(board_size)]
     for i in range(board_size):
@@ -35,13 +34,13 @@ def main():
             board[i][j] = '#' if random.random() > 0.7 else ' '
 
     def change_board_size():
-        global board_size, board
+        nonlocal board_size, board
         while True:
             try:
                 new_size = int(input("Enter new board size (or 0 to exit): "))
                 if new_size == 0:
                     print("Exiting...")
-                    os._exit(0)
+                    return
                 board_size = new_size
                 board = [[' ' for _ in range(board_size)] for _ in range(board_size)]
                 for i in range(board_size):
@@ -50,13 +49,13 @@ def main():
             except ValueError:
                 print("Invalid input. Please enter a valid integer.")
 
-    threading.Thread(target=change_board_size, daemon=True).start()
+    size_change_thread = threading.Thread(target=change_board_size, daemon=True)
+    size_change_thread.start()
 
-    while True:
+    while size_change_thread.is_alive():
         print_board(board)
         board = next_generation(board)
         time.sleep(1)
 
 if __name__ == "__main__":
-    import os
     main()
